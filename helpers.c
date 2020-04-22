@@ -25,28 +25,24 @@ void printBytes(void const * const pointerX, size_t const sizeofX) {
 
 /*
  * Print the binary representation of a variable X (of any datatype).
- * Assume the machine is little-endian (that's why the loops go backwards).
  * 
  * Adapted from: https://stackoverflow.com/questions/111928/is-there-a-printf-converter-to-print-in-binary-format
+ * 
+ * Example call: 
+ *     int x = 0x01234567;
+ *     printBits(&x, sizeof(x));
  */
-void printBinary(void const * const pointerX, size_t const sizeofX) {
+void printBits(void const * const pointerX, size_t const sizeofX) {
     BYTE *X = (BYTE *) pointerX;
 
-    // For every byte
-    for (int i = sizeofX-1; i >= 0; i--) {
-
-        // For every bit in byte
+    for (int i = 0; i < sizeofX; i++) {
         for (int j = 7; j >= 0; j--) {
-
-            // Print the bit
-            printf("%u", (X[i] >> j) & 1);
-
+            printf("%u", (X[i] >> j) & 1);  // Print the bit
             if (j % 4 == 0) {
                 printf(" ");
             }
         }
         printf("| ");
-        
     }
     printf("\n");
 }
