@@ -19,6 +19,9 @@ void printBytes(void *pointerX, size_t sizeofX) {
 
     for (int i = 0; i < sizeofX; i++) {
         printf("%.2x ", X[i]);
+        if ((i+1) % 8 == 0) {
+            printf("\n");
+        }
     }
     printf("\n");
 }
@@ -43,6 +46,9 @@ void printBits(void *pointerX, size_t sizeofX) {
             }
         }
         printf("| ");
+        if ((i+1) % 8 == 0) {
+            printf("\n");
+        }
     }
     printf("\n");
 }

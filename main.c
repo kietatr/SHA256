@@ -1,3 +1,9 @@
+/*
+ * Functions for calculating the SHA-256 hash of a message.
+ * Assume your machine stores numbers in little-endian order. 
+ */
+
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "helpers.h"
@@ -54,34 +60,65 @@ const WORD K[64] = {
  * Padding the input message
  * (FIPS 180-4, Section 5.1.1, page 13)
  */
-void padding(void *pointerMsg, size_t strlenMsg) {
-	BYTE * msg = (BYTE *) pointerMsg;
+BYTE *padding(void *pointerMsg, size_t strlenMsg) {
+	BYTE *msg = (BYTE *) pointerMsg;
 
 	// Length of input message in bits
 	unsigned int l = strlenMsg * 8;
 
-	// Number of zeros to pad
+	// Number of zero bits to pad
 	// Find k such that (l + 1 + k + 64) % 512 == 0
 	unsigned int k = 512 - ((l + 1 + 64) % 512);
 
 	// Number of 512-bit message blocks
 	unsigned int n = (l + 1 + k + 64) / 512;
 
-	// l in 64-bit format
+	/* 
+	 * Create the padded message 
+	 */
+
+	size_t numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
+	BYTE *paddedMsg = malloc(sizeof(BYTE) * numBytes_in_paddedMsg);
+
+	int i = 0;
+
+	// 1. Start with the original message
+	for (; i < strlenMsg; i++) {
+		paddedMsg[i] = msg[i];
+	}
+
+	// 2. Append 1000 0000
+	paddedMsg[i] = 0x80;
+	i++;
+
+	// 3. Append 0's
+	// k has to exclude seven 0's from 1000 0000, and be in number of bytes (hence divided by 8)
+	unsigned int numZeroBytes = i + ((k - 7) / 8);
+	for (; i < numZeroBytes; i++) {
+		paddedMsg[i] = 0x00;
+	}
+	
+	// l in 64 bits
 	unsigned long long l_64 = (unsigned long long) l;
+	
+	// 4. Append the 64 bits of message length
+	int j = 7;
+	for (; i < numBytes_in_paddedMsg; i++) {
+		paddedMsg[i] = (l_64 >> (j * 8)) & 0xff;
+		j--;
+	}
 
-	// TODO: remember to append l_64 to the padded message in big-endian order (zeros go on the left)
-	// TODO: return the padded message
+	printBits(paddedMsg, numBytes_in_paddedMsg);
+	printf("n = %d\n", n);
 
-	printf("l = %d\n k = %d\n n = %d\n", l, k, n);
-	printBits(&l_64, sizeof(l_64));
+	return paddedMsg;
 }
 
 /* MAIN */
 /*******************************************************************************/
 
 int main() {
-	char testStr[] = "abc";
-	padding(&testStr, strlen(testStr));
+	char testStr[] = "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc";
+	BYTE *paddedTestStr = padding(&testStr, strlen(testStr));
     return 0;
 }
