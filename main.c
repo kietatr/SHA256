@@ -50,14 +50,37 @@ const WORD K[64] = {
 /* FUNCTION DEFINITIONS */
 /*******************************************************************************/
 
+/*
+ * Padding the input message
+ * (FIPS 180-4, Section 5.1.1, page 13)
+ */
+void padding(void *pointerMsg, size_t strlenMsg) {
+	BYTE * msg = (BYTE *) pointerMsg;
 
+	// Length of input message in bits
+	unsigned int l = strlenMsg * 8;
+
+	// Number of zeros to pad
+	// Find k such that (l + 1 + k + 64) % 512 == 0
+	unsigned int k = 512 - ((l + 1 + 64) % 512);
+
+	// Number of 512-bit message blocks
+	unsigned int n = (l + 1 + k + 64) / 512;
+
+	// l in 64-bit format
+	unsigned long long l_64 = (unsigned long long) l;
+
+	// TODO: remember to append l_64 to the padded message in big-endian order (zeros go on the left)
+
+	printf("l = %d\n k = %d\n n = %d\n", l, k, n);
+	printBits(&l_64, sizeof(l_64));
+}
 
 /* MAIN */
 /*******************************************************************************/
 
 int main() {
-    int x = 0x01234567;
-    printBits(&x, sizeof(x));
-    printBytes(&x, sizeof(x));
+	char testStr[] = "abc";
+	padding(&testStr, strlen(testStr));
     return 0;
 }

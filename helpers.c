@@ -14,7 +14,7 @@
  *     int x = 0x01234567;
  *     printBytes(&x, sizeof(x));
  */
-void printBytes(void const * const pointerX, size_t const sizeofX) {
+void printBytes(void *pointerX, size_t sizeofX) {
     BYTE *X = (BYTE *) pointerX;
 
     for (int i = 0; i < sizeofX; i++) {
@@ -32,7 +32,7 @@ void printBytes(void const * const pointerX, size_t const sizeofX) {
  *     int x = 0x01234567;
  *     printBits(&x, sizeof(x));
  */
-void printBits(void const * const pointerX, size_t const sizeofX) {
+void printBits(void *pointerX, size_t sizeofX) {
     BYTE *X = (BYTE *) pointerX;
 
     for (int i = 0; i < sizeofX; i++) {
