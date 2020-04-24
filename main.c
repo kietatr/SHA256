@@ -71,6 +71,7 @@ void padding(void *pointerMsg, size_t strlenMsg) {
 	unsigned long long l_64 = (unsigned long long) l;
 
 	// TODO: remember to append l_64 to the padded message in big-endian order (zeros go on the left)
+	// TODO: return the padded message
 
 	printf("l = %d\n k = %d\n n = %d\n", l, k, n);
 	printBits(&l_64, sizeof(l_64));
