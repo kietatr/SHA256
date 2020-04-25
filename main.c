@@ -9,7 +9,7 @@
 #include "helpers.h"
 
 /* DATA TYPES */
-/************************************************************************/
+/**********************************************************************************************************************/
 
 typedef unsigned int WORD;  // 32 bits; SHA-256 operates on 32-bit words
 
@@ -18,7 +18,7 @@ typedef unsigned int WORD;  // 32 bits; SHA-256 operates on 32-bit words
  * (FIPS 180-4, pages 8->10)
  * For ROTR and ROTL, we use w = 32, because SHA-256 operates on 32-bit words 
  */
-/*******************************************************************************/
+/**********************************************************************************************************************/
 
 // Rotate right (circular right shift)
 #define ROTR(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
@@ -37,10 +37,9 @@ typedef unsigned int WORD;  // 32 bits; SHA-256 operates on 32-bit words
 /* 
  * CONSTANTS 
  * (FIPS 180-4, page 11)
- * These words represent the first thirty-two bits of the fractional parts of
- * the cube roots of the first 64 prime numbers. 
+ * These words represent the first thirty-two bits of the fractional parts of the cube roots of the first 64 prime numbers. 
  */
-/*******************************************************************************/
+/**********************************************************************************************************************/
 
 const WORD K[64] = {
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
@@ -53,8 +52,28 @@ const WORD K[64] = {
 	0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
+/* GLOBAL VARIABLES */
+/**********************************************************************************************************************/
+
+/*
+ * Initial hash values
+ * (FIPS 180-4, Section 5.3.3, page 15)
+ * These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
+ */
+WORD H0 = 0x6a09e667;
+WORD H1 = 0xbb67ae85;
+WORD H2 = 0x3c6ef372;
+WORD H3 = 0xa54ff53a;
+WORD H4 = 0x510e527f;
+WORD H5 = 0x9b05688c;
+WORD H6 = 0x1f83d9ab;
+WORD H7 = 0x5be0cd19;
+
+// The number of bytes in the padded message
+size_t numBytes_in_paddedMsg;
+
 /* FUNCTION DEFINITIONS */
-/*******************************************************************************/
+/**********************************************************************************************************************/
 
 /*
  * Padding the input message
@@ -66,18 +85,17 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	// Length of input message in bits
 	unsigned int l = strlenMsg * 8;
 
-	// Number of zero bits to pad
-	// Find k such that (l + 1 + k + 64) % 512 == 0
+	// Number of zero bits to pad. Find k such that (l + 1 + k + 64) % 512 == 0
 	unsigned int k = 512 - ((l + 1 + 64) % 512);
 
-	// Number of 512-bit message blocks
-	unsigned int n = (l + 1 + k + 64) / 512;
+	// // Number of 512-bit message blocks
+	// unsigned int n = (l + 1 + k + 64) / 512;
 
 	/* 
 	 * Create the padded message 
 	 */
 
-	size_t numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
+	numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
 	BYTE *paddedMsg = malloc(sizeof(BYTE) * numBytes_in_paddedMsg);
 
 	int i = 0;
@@ -91,8 +109,7 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	paddedMsg[i] = 0x80;
 	i++;
 
-	// 3. Append 0's
-	// k has to exclude seven 0's from 1000 0000, and be in number of bytes (hence divided by 8)
+	// 3. Append 0's. k has to exclude seven 0's from 1000 0000, and be in number of bytes (hence divided by 8)
 	unsigned int numZeroBytes = i + ((k - 7) / 8);
 	for (; i < numZeroBytes; i++) {
 		paddedMsg[i] = 0x00;
@@ -109,16 +126,19 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	}
 
 	printBits(paddedMsg, numBytes_in_paddedMsg);
-	printf("n = %d\n", n);
 
 	return paddedMsg;
 }
 
+void sha256(BYTE *paddedMsg) {
+	
+}
+
 /* MAIN */
-/*******************************************************************************/
+/**********************************************************************************************************************/
 
 int main() {
-	char testStr[] = "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc";
+	char testStr[] = "abcd";
 	BYTE *paddedTestStr = padding(&testStr, strlen(testStr));
     return 0;
 }
