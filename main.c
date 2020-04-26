@@ -69,8 +69,11 @@ WORD H5 = 0x9b05688c;
 WORD H6 = 0x1f83d9ab;
 WORD H7 = 0x5be0cd19;
 
-// The number of bytes in the padded message
+// Number of bytes in the padded message
 size_t numBytes_in_paddedMsg;
+
+// Number of 512-bit message blocks
+unsigned int N;
 
 /* FUNCTION DEFINITIONS */
 /**********************************************************************************************************************/
@@ -88,8 +91,8 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	// Number of zero bits to pad. Find k such that (l + 1 + k + 64) % 512 == 0
 	unsigned int k = 512 - ((l + 1 + 64) % 512);
 
-	// // Number of 512-bit message blocks
-	// unsigned int n = (l + 1 + k + 64) / 512;
+	// Number of 512-bit message blocks
+	N = (l + 1 + k + 64) / 512;
 
 	/* 
 	 * Create the padded message 
@@ -130,7 +133,18 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	return paddedMsg;
 }
 
-void sha256(BYTE *paddedMsg) {
+void sha256(char *inputMsg) {
+	// Pad the input message
+	BYTE *paddedMsg = padding(inputMsg, strlen(inputMsg));
+	
+	// Parse the padded message into N blocks of 512 bits (16 32-bit words)
+	WORD M[N][16];
+	for (int blockI = 0; blockI < N; blockI++) {
+		for (int wordI = 0; wordI < 16; wordI++) {
+			int byteI = 4*wordI + 64*blockI;
+			M[blockI][wordI] = ((WORD) paddedMsg[byteI]) << 24 | ((WORD) paddedMsg[byteI+1]) << 16 | ((WORD) paddedMsg[byteI+2]) << 8 | ((WORD) paddedMsg[byteI+3]);
+		}
+	}
 	
 }
 
@@ -138,7 +152,6 @@ void sha256(BYTE *paddedMsg) {
 /**********************************************************************************************************************/
 
 int main() {
-	char testStr[] = "abcd";
-	BYTE *paddedTestStr = padding(&testStr, strlen(testStr));
+	sha256("abcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmno");
     return 0;
 }

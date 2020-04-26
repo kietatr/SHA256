@@ -18,9 +18,18 @@ void printBytes(void *pointerX, size_t sizeofX) {
     BYTE *X = (BYTE *) pointerX;
 
     for (int i = 0; i < sizeofX; i++) {
+        // Print the bit
         printf("%.2x ", X[i]);
+
+        // Decorations
+        if ((i+1) % 4 == 0) {
+            printf("| ");  // 32-bit word divider
+        }
         if ((i+1) % 8 == 0) {
             printf("\n");
+        }
+        if ((i+1) % 64 == 0) {
+            printf("---------------------------\n");  // 512-bit block divider
         }
     }
     printf("\n");
@@ -40,14 +49,23 @@ void printBits(void *pointerX, size_t sizeofX) {
 
     for (int i = 0; i < sizeofX; i++) {
         for (int j = 7; j >= 0; j--) {
-            printf("%u", (X[i] >> j) & 1);  // Print the bit
+            // Print the bit
+            printf("%u", (X[i] >> j) & 1);
+
+            // Decorations
             if (j % 4 == 0) {
                 printf(" ");
             }
         }
-        printf("| ");
+        // Decorations
+        if ((i+1) % 4 == 0) {
+            printf("| ");  // 32-bit word divider
+        }
         if ((i+1) % 8 == 0) {
             printf("\n");
+        }
+        if ((i+1) % 64 == 0) {
+            printf("-----------------------------------------------------------------------------------\n");  // 512-bit block divider
         }
     }
     printf("\n");
