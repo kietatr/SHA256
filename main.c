@@ -128,11 +128,15 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 		j--;
 	}
 
-	printBits(paddedMsg, numBytes_in_paddedMsg);
+	// printBits(paddedMsg, numBytes_in_paddedMsg);
 
 	return paddedMsg;
 }
 
+/*
+ * Hash computations
+ * (FIPS 180-4, Section 6.2.2, page 22)
+ */
 void sha256(char *inputMsg) {
 	// Pad the input message
 	BYTE *paddedMsg = padding(inputMsg, strlen(inputMsg));
@@ -146,12 +150,71 @@ void sha256(char *inputMsg) {
 		}
 	}
 	
+	// Hash computations
+	for (int i = 0; i < N; i++) {
+		// 1. Prepare the message schedule
+		WORD W[64];
+		for (int t = 0; t <= 15; t++) {
+			W[t] = M[N][t];
+		}
+		for (int t = 16; t <= 63; t++) {
+			W[t] = S1(W[t-2]) + W[t-7] + S0(W[t-15]) + W[t-16];
+		}
+
+		// 2. Initialize the eight working variables
+		WORD a = H0;
+		WORD b = H1;
+		WORD c = H2;
+		WORD d = H3;
+		WORD e = H4;
+		WORD f = H5;
+		WORD g = H6;
+		WORD h = H7;
+
+		// 3. For t=0 to 63
+		for (int t = 0; t <= 63; t++) {
+			WORD T1 = h + SIGMA1(e) + CH(e, f, g) + K[t] + W[t];
+			WORD T2 = SIGMA0(a) + MAJ(a, b, c);
+			h = g;
+			g = f;
+			f = e;
+			e = d + T1;
+			d = c;
+			c = b;
+			b = a;
+			a = T1 + T2;
+		}
+
+		// 4. Compute the i-th intermediate hash value
+		H0 = a + H0;
+		H1 = b + H1;
+		H2 = c + H2;
+		H3 = d + H3;
+		H4 = e + H4;
+		H5 = f + H5;
+		H6 = g + H6;
+		H7 = h + H7;
+	}
+
+	// Print the result
+	printf("%x", H0);
+	printf("%x", H1);
+	printf("%x", H2);
+	printf("%x", H3);
+	printf("%x", H4);
+	printf("%x", H5);
+	printf("%x", H6);
+	printf("%x", H7);
+	printf("\n");
+
+	// TODO: Find the bug in the code. The result is WRONG!!! 
+	// sha256("abc") == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 }
 
 /* MAIN */
 /**********************************************************************************************************************/
 
 int main() {
-	sha256("abcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmnoabcdefghijklmno");
+	sha256("abc");
     return 0;
 }
