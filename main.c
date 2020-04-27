@@ -1,6 +1,6 @@
 /*
- * Functions for calculating the SHA-256 hash of a message.
- * Assume your machine stores numbers in little-endian order. 
+ * Calculating the SHA-256 hash of a message.
+ * Following the official documentation FIPS 180-4. 
  */
 
 #include <stdlib.h>
@@ -13,34 +13,37 @@
 
 typedef unsigned int WORD;  // 32 bits; SHA-256 operates on 32-bit words
 
-/* 
- * MACROS
- * (FIPS 180-4, pages 8->10)
- * Special functions
- * For ROTR, we use w = 32, because SHA-256 operates on 32-bit words 
- */
+/* MACROS */
 /**********************************************************************************************************************/
 
-// Rotate right (circular right shift)
+/*
+ * Rotate right, a.k.a. circular right shift.
+ * (FIPS 180-4, Section 3.2 item 4, page 8)
+ * We use w = 32 because SHA-256 operates on 32-bit words.
+ */
 #define ROTR(x,n) (((x) >> (n)) | ((x) << (32 - (n))))
 
+/*
+ * Special functions for SHA-256.
+ * (FIPS 180-4, Section 4.1.2, page 10)
+ */
 #define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
 #define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
-
 #define SIGMA0(x) (ROTR(x,2) ^ ROTR(x,13) ^ ROTR(x,22))
 #define SIGMA1(x) (ROTR(x,6) ^ ROTR(x,11) ^ ROTR(x,25))
 #define S0(x) (ROTR(x,7) ^ ROTR(x,18) ^ ((x) >> 3))
 #define S1(x) (ROTR(x,17) ^ ROTR(x,19) ^ ((x) >> 10))
 
-/* 
- * CONSTANTS 
- * (FIPS 180-4, page 11)
- * These words represent the first thirty-two bits of the fractional parts of the cube roots of the first 64 prime numbers. 
- */
+/* CONSTANTS */
 /**********************************************************************************************************************/
 
+/*
+ * Special constants for SHA-256.
+ * (FIPS 180-4, Section 4.2.2, page 11)
+ * These words represent the first thirty-two bits of the fractional parts of the cube roots of the first 64 prime numbers. 
+ */
 const WORD K[64] = {
-    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+	0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
 	0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
 	0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
 	0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
@@ -53,18 +56,20 @@ const WORD K[64] = {
 /* GLOBAL VARIABLES */
 /**********************************************************************************************************************/
 
-// Number of 512-bit message blocks
-unsigned int N;
+unsigned int N;  // Number of 512-bit message blocks
 
 /* FUNCTION DEFINITIONS */
 /**********************************************************************************************************************/
 
 /*
- * Padding the input message
+ * Padding the input message.
  * (FIPS 180-4, Section 5.1.1, page 13)
  */
 BYTE *padding(void *pointerMsg, size_t strlenMsg) {
-	BYTE *msg = (BYTE *) pointerMsg;
+	BYTE *inputMsg = (BYTE *) pointerMsg;
+
+	/* Calculate l, k, N */
+	/**********************************************************************************/
 
 	// Length of input message in bits
 	unsigned int l = strlenMsg * 8;
@@ -75,9 +80,8 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	// Number of 512-bit message blocks
 	N = (l + 1 + k + 64) / 512;
 
-	/* 
-	 * Create the padded message 
-	 */
+	/* Create the padded message */
+	/**********************************************************************************/
 
 	// Number of bytes in the padded message
 	size_t numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
@@ -86,9 +90,9 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 
 	int i = 0;
 
-	// 1. Start with the original message
+	// 1. Start with the original input message
 	for (; i < strlenMsg; i++) {
-		paddedMsg[i] = msg[i];
+		paddedMsg[i] = inputMsg[i];
 	}
 
 	// 2. Append 1000 0000
@@ -117,18 +121,18 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 }
 
 /*
- * The SHA-256 algorithm
+ * The SHA-256 algorithm.
  * (FIPS 180-4, Section 6.2, page 22)
  */
 void sha256(char *inputMsg) {
 	/*
-	 * SHA-256 Preprocessing
+	 * SHA-256 Preprocessing.
 	 * (FIPS 180-4, Section 6.2.1, page 22)
 	 */
 	/**********************************************************************************/
 
 	/*
-	* Set the initial hash values
+	* Set the initial hash values.
 	* (FIPS 180-4, Section 5.3.3, page 15)
 	* These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
 	*/
@@ -154,7 +158,7 @@ void sha256(char *inputMsg) {
 	}
 
 	/*
-	 * SHA-256 Hash Computation
+	 * SHA-256 Hash Computation.
 	 * (FIPS 180-4, Section 6.2.2, page 22)
 	 */
 	/**********************************************************************************/
