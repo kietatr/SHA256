@@ -16,23 +16,21 @@ typedef unsigned int WORD;  // 32 bits; SHA-256 operates on 32-bit words
 /* 
  * MACROS
  * (FIPS 180-4, pages 8->10)
- * For ROTR and ROTL, we use w = 32, because SHA-256 operates on 32-bit words 
+ * Special functions
+ * For ROTR, we use w = 32, because SHA-256 operates on 32-bit words 
  */
 /**********************************************************************************************************************/
 
 // Rotate right (circular right shift)
-#define ROTR(x, n) (((x) >> (n)) | ((x) << (32 - (n))))
+#define ROTR(x,n) (((x) >> (n)) | ((x) << (32 - (n))))
 
-// Rotate left (circular left shift)
-#define ROTL(x, n) (((x) << (n)) | ((x) >> (32 - (n))))
+#define CH(x,y,z) (((x) & (y)) ^ (~(x) & (z)))
+#define MAJ(x,y,z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
-#define CH(x, y, z) (((x) & (y)) ^ (~(x) & (z)))
-#define MAJ(x, y, z) (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
-
-#define SIGMA0(x) (ROTR(x, 2) ^ ROTR(x, 13) ^ ROTR(x, 22))
-#define SIGMA1(x) (ROTR(x, 6) ^ ROTR(x, 11) ^ ROTR(x, 25))
-#define S0(x) (ROTR(x, 7) ^ ROTR(x, 18) ^ ((x) >> 3))
-#define S1(x) (ROTR(x, 17) ^ ROTR(x, 19) ^ ((x) >> 10))
+#define SIGMA0(x) (ROTR(x,2) ^ ROTR(x,13) ^ ROTR(x,22))
+#define SIGMA1(x) (ROTR(x,6) ^ ROTR(x,11) ^ ROTR(x,25))
+#define S0(x) (ROTR(x,7) ^ ROTR(x,18) ^ ((x) >> 3))
+#define S1(x) (ROTR(x,17) ^ ROTR(x,19) ^ ((x) >> 10))
 
 /* 
  * CONSTANTS 
@@ -55,11 +53,14 @@ const WORD K[64] = {
 /* GLOBAL VARIABLES */
 /**********************************************************************************************************************/
 
+// Number of 512-bit message blocks
+unsigned int N;
+
 /*
- * Initial hash values
- * (FIPS 180-4, Section 5.3.3, page 15)
- * These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
- */
+* Set the initial hash values
+* (FIPS 180-4, Section 5.3.3, page 15)
+* These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
+*/
 WORD H0 = 0x6a09e667;
 WORD H1 = 0xbb67ae85;
 WORD H2 = 0x3c6ef372;
@@ -68,12 +69,6 @@ WORD H4 = 0x510e527f;
 WORD H5 = 0x9b05688c;
 WORD H6 = 0x1f83d9ab;
 WORD H7 = 0x5be0cd19;
-
-// Number of bytes in the padded message
-size_t numBytes_in_paddedMsg;
-
-// Number of 512-bit message blocks
-unsigned int N;
 
 /* FUNCTION DEFINITIONS */
 /**********************************************************************************************************************/
@@ -98,7 +93,9 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 	 * Create the padded message 
 	 */
 
-	numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
+	// Number of bytes in the padded message
+	size_t numBytes_in_paddedMsg = (l + 1 + k + 64) / 8;
+
 	BYTE *paddedMsg = malloc(sizeof(BYTE) * numBytes_in_paddedMsg);
 
 	int i = 0;
@@ -145,7 +142,7 @@ void sha256(char *inputMsg) {
 	WORD M[N][16];
 	for (int blockI = 0; blockI < N; blockI++) {
 		for (int wordI = 0; wordI < 16; wordI++) {
-			int byteI = 4*wordI + 64*blockI;
+			int byteI = 4 * wordI + 64 * blockI;
 			M[blockI][wordI] = ((WORD) paddedMsg[byteI]) << 24 | ((WORD) paddedMsg[byteI+1]) << 16 | ((WORD) paddedMsg[byteI+2]) << 8 | ((WORD) paddedMsg[byteI+3]);
 		}
 	}
@@ -155,7 +152,7 @@ void sha256(char *inputMsg) {
 		// 1. Prepare the message schedule
 		WORD W[64];
 		for (int t = 0; t <= 15; t++) {
-			W[t] = M[N][t];
+			W[t] = M[i][t];
 		}
 		for (int t = 16; t <= 63; t++) {
 			W[t] = S1(W[t-2]) + W[t-7] + S0(W[t-15]) + W[t-16];
@@ -206,15 +203,17 @@ void sha256(char *inputMsg) {
 	printf("%x", H6);
 	printf("%x", H7);
 	printf("\n");
-
-	// TODO: Find the bug in the code. The result is WRONG!!! 
-	// sha256("abc") == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 }
 
 /* MAIN */
 /**********************************************************************************************************************/
 
 int main() {
-	sha256("abc");
-    return 0;
+	// CORRECT
+	sha256("abc");  // == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+
+	// TODO: check for bugs on why this is WRONG
+	sha256("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");  // == "a8ae6e6ee929abea3afcfc5258c8ccd6f85273e0d4626d26c7279f3250f77c8e"
+	
+	return 0;
 }
