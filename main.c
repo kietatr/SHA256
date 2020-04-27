@@ -117,10 +117,16 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 }
 
 /*
- * Hash computations
- * (FIPS 180-4, Section 6.2.2, page 22)
+ * The SHA-256 algorithm
+ * (FIPS 180-4, Section 6.2, page 22)
  */
 void sha256(char *inputMsg) {
+	/*
+	 * SHA-256 Preprocessing
+	 * (FIPS 180-4, Section 6.2.1, page 22)
+	 */
+	/**********************************************************************************/
+
 	/*
 	* Set the initial hash values
 	* (FIPS 180-4, Section 5.3.3, page 15)
@@ -138,7 +144,7 @@ void sha256(char *inputMsg) {
 	// Pad the input message
 	BYTE *paddedMsg = padding(inputMsg, strlen(inputMsg));
 	
-	// Parse the padded message into N blocks of 512 bits (16 32-bit words)
+	// Parse the padded message into N blocks of 512 bits each (each block has 16 32-bit words)
 	WORD M[N][16];
 	for (int blockI = 0; blockI < N; blockI++) {
 		for (int wordI = 0; wordI < 16; wordI++) {
@@ -146,8 +152,13 @@ void sha256(char *inputMsg) {
 			M[blockI][wordI] = ((WORD) paddedMsg[byteI]) << 24 | ((WORD) paddedMsg[byteI+1]) << 16 | ((WORD) paddedMsg[byteI+2]) << 8 | ((WORD) paddedMsg[byteI+3]);
 		}
 	}
-	
-	// Hash computations
+
+	/*
+	 * SHA-256 Hash Computation
+	 * (FIPS 180-4, Section 6.2.2, page 22)
+	 */
+	/**********************************************************************************/
+
 	WORD W[64];
 	WORD a, b, c, d, e, f, g, h, T1, T2;
 
