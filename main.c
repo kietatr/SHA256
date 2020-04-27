@@ -211,6 +211,7 @@ void sha256(char *inputMsg) {
 	}
 
 	// Print the result
+	printf("SHA-256(%s) = ", inputMsg);
 	printf("%x", H0);
 	printf("%x", H1);
 	printf("%x", H2);
@@ -226,7 +227,10 @@ void sha256(char *inputMsg) {
 /**********************************************************************************************************************/
 
 int main() {
+	printf("\n");
+
 	sha256("abc");  // == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 	sha256("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");  // == "a8ae6e6ee929abea3afcfc5258c8ccd6f85273e0d4626d26c7279f3250f77c8e"
+	
 	return 0;
 }
