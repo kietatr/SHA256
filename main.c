@@ -56,20 +56,6 @@ const WORD K[64] = {
 // Number of 512-bit message blocks
 unsigned int N;
 
-/*
-* Set the initial hash values
-* (FIPS 180-4, Section 5.3.3, page 15)
-* These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
-*/
-WORD H0 = 0x6a09e667;
-WORD H1 = 0xbb67ae85;
-WORD H2 = 0x3c6ef372;
-WORD H3 = 0xa54ff53a;
-WORD H4 = 0x510e527f;
-WORD H5 = 0x9b05688c;
-WORD H6 = 0x1f83d9ab;
-WORD H7 = 0x5be0cd19;
-
 /* FUNCTION DEFINITIONS */
 /**********************************************************************************************************************/
 
@@ -135,6 +121,20 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
  * (FIPS 180-4, Section 6.2.2, page 22)
  */
 void sha256(char *inputMsg) {
+	/*
+	* Set the initial hash values
+	* (FIPS 180-4, Section 5.3.3, page 15)
+	* These words were obtained by taking the first thirty-two bits of the fractional parts of the square roots of the first eight prime numbers.
+	*/
+	WORD H0 = 0x6a09e667;
+	WORD H1 = 0xbb67ae85;
+	WORD H2 = 0x3c6ef372;
+	WORD H3 = 0xa54ff53a;
+	WORD H4 = 0x510e527f;
+	WORD H5 = 0x9b05688c;
+	WORD H6 = 0x1f83d9ab;
+	WORD H7 = 0x5be0cd19;
+
 	// Pad the input message
 	BYTE *paddedMsg = padding(inputMsg, strlen(inputMsg));
 	
@@ -211,11 +211,7 @@ void sha256(char *inputMsg) {
 /**********************************************************************************************************************/
 
 int main() {
-	// CORRECT
 	sha256("abc");  // == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
-
-	// TODO: check for bugs on why this is WRONG
 	sha256("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");  // == "a8ae6e6ee929abea3afcfc5258c8ccd6f85273e0d4626d26c7279f3250f77c8e"
-	
 	return 0;
 }
