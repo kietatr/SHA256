@@ -125,7 +125,7 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
 		j--;
 	}
 
-	// printBits(paddedMsg, numBytes_in_paddedMsg);
+	// printBytes(paddedMsg, numBytes_in_paddedMsg);
 
 	return paddedMsg;
 }
@@ -148,9 +148,11 @@ void sha256(char *inputMsg) {
 	}
 	
 	// Hash computations
+	WORD W[64];
+	WORD a, b, c, d, e, f, g, h, T1, T2;
+
 	for (int i = 0; i < N; i++) {
 		// 1. Prepare the message schedule
-		WORD W[64];
 		for (int t = 0; t <= 15; t++) {
 			W[t] = M[i][t];
 		}
@@ -159,19 +161,19 @@ void sha256(char *inputMsg) {
 		}
 
 		// 2. Initialize the eight working variables
-		WORD a = H0;
-		WORD b = H1;
-		WORD c = H2;
-		WORD d = H3;
-		WORD e = H4;
-		WORD f = H5;
-		WORD g = H6;
-		WORD h = H7;
+		a = H0;
+		b = H1;
+		c = H2;
+		d = H3;
+		e = H4;
+		f = H5;
+		g = H6;
+		h = H7;
 
 		// 3. For t=0 to 63
 		for (int t = 0; t <= 63; t++) {
-			WORD T1 = h + SIGMA1(e) + CH(e, f, g) + K[t] + W[t];
-			WORD T2 = SIGMA0(a) + MAJ(a, b, c);
+			T1 = h + SIGMA1(e) + CH(e,f,g) + K[t] + W[t];
+			T2 = SIGMA0(a) + MAJ(a,b,c);
 			h = g;
 			g = f;
 			f = e;
