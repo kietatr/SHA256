@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "helpers.h"
 
 /* DATA TYPES */
@@ -124,7 +125,7 @@ BYTE *padding(void *pointerMsg, size_t strlenMsg) {
  * The SHA-256 algorithm.
  * (FIPS 180-4, Section 6.2, page 22)
  */
-void sha256(char *inputMsg) {
+char *sha256(char *inputMsg) {
 	/*
 	 * SHA-256 Preprocessing.
 	 * (FIPS 180-4, Section 6.2.1, page 22)
@@ -210,27 +211,34 @@ void sha256(char *inputMsg) {
 		H7 = h + H7;
 	}
 
-	// Print the result
-	printf("SHA-256(%s) = ", inputMsg);
-	printf("%x", H0);
-	printf("%x", H1);
-	printf("%x", H2);
-	printf("%x", H3);
-	printf("%x", H4);
-	printf("%x", H5);
-	printf("%x", H6);
-	printf("%x", H7);
-	printf("\n");
+	// Return result
+	char *result = malloc(sizeof(char) * 64);
+	sprintf(result, "%x%x%x%x%x%x%x%x", H0, H1, H2, H3, H4, H5, H6, H7);
+	
+	free(paddedMsg);
+
+	return result;
+}
+
+void testSHA256(char *input, char *output) {
+	printf("\nTesting sha256(%s) == %s\n", input, output);
+
+	assert(strcmp(sha256(input), output) == 0);
+	
+	printf("Test PASSED\n");
+	printf("------------------------------------------------------------------------------------------\n");
+}
+
+void runTests() {
+	testSHA256("abc", "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+	testSHA256("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef", "a8ae6e6ee929abea3afcfc5258c8ccd6f85273e0d4626d26c7279f3250f77c8e");
+	testSHA256("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ  1234567890 !@#$%^&*()_+-= {}[];:<>,.? ~ `", "fcabf20898acdeb4cac195267c615a58adebaae5120a78dc8a608b366b1baa75");
 }
 
 /* MAIN */
 /**********************************************************************************************************************/
 
-int main() {
-	printf("\n");
-
-	sha256("abc");  // == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
-	sha256("0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");  // == "a8ae6e6ee929abea3afcfc5258c8ccd6f85273e0d4626d26c7279f3250f77c8e"
-	
+int main() {	
+	runTests();
 	return 0;
 }
