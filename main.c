@@ -211,7 +211,7 @@ char *sha256(char *inputMsg) {
 		H7 = h + H7;
 	}
 
-	// Return result
+	// Return result as a string
 	char *result = malloc(sizeof(char) * 64);
 	sprintf(result, "%x%x%x%x%x%x%x%x", H0, H1, H2, H3, H4, H5, H6, H7);
 	
