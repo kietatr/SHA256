@@ -4,6 +4,7 @@
 # Usage:
 #     ./git-commit "Your git commit message"
 
+MESSAGE="'$*'"
 git add -A 
-git commit -m '$1'
+git commit -m "$MESSAGE"
 git push
