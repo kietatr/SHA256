@@ -1,7 +1,9 @@
 # SHA256
 ## Kiet Tran and Katya Gurgel
 
-(Trying to) implement SHA-256 in C.
+An implementation of the hashing algorithm SHA-256 in C. 
+
+This code closely follows the pseudocode provided in the official documentation **[FIPS 280-4](https://github.com/kietatr/SHA256/blob/master/NIST.FIPS.180-4.pdf), Section 5.3.3, page 15**.
 
 ## How to compile and run
 
