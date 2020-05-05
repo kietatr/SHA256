@@ -8,6 +8,9 @@
 #include "helpers.h"
 #include "sha256.h"
 
+/* FUNCTION DEFINITIONS */
+/**********************************************************************************************************************/
+
 void testSHA256(char *input, char *expectedOutput) {
 	printf("\nTesting sha256(%s) == %s\n", input, expectedOutput);
 
