@@ -8,10 +8,10 @@
 #include "helpers.h"
 #include "sha256.h"
 
-void testSHA256(char *input, char *output) {
-	printf("\nTesting sha256(%s) == %s\n", input, output);
+void testSHA256(char *input, char *expectedOutput) {
+	printf("\nTesting sha256(%s) == %s\n", input, expectedOutput);
 
-	assert(strcmp(sha256(input), output) == 0);
+	assert(strcmp(sha256(input), expectedOutput) == 0);
 	
 	printf("Test PASSED\n");
 	printf("------------------------------------------------------------------------------------------\n");
