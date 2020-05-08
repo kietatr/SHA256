@@ -23,11 +23,11 @@ make
 
 The `make` command will:
 1. Compile the source code
-2. Then run the compiled executable file for you
+2. Then run the compiled executable file `main` for you
 
 ## Comparing runtime with another implementation
 
-There isn't a standard C library for SHA-2, so we settled with an implementation from [amosnier](https://github.com/amosnier), which has been reviewed with the [Stack Exchange CODE
+There isn't a standard C implementation for SHA-256, so we settled with an implementation from [amosnier](https://github.com/amosnier), which has been reviewed with the [Stack Exchange CODE
 REVIEW](https://codereview.stackexchange.com/questions/182812/self-contained-sha-256-implementation-in-c).
 
 To time the code of my implementation, run:
