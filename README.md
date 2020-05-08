@@ -5,6 +5,12 @@ An implementation of the hashing algorithm SHA-256 in C.
 
 This code closely follows the pseudocode provided in the official documentation **[FIPS 180-4](https://github.com/kietatr/SHA256/blob/master/NIST.FIPS.180-4.pdf), Section 6.2.2, page 22**.
 
+## Demo Video
+
+[Click here to view the demo video.](https://drive.google.com/file/d/1n7mqzZ77mDuZUgvySg3Ai88MnSLIkYXf/view?usp=sharing)
+
+This video is also included in this repo under the name of **demo-video.mp4**
+
 ## How to compile and run
 
 In your (Mac or Linux) Terminal or Windows Subsystem for Linux, run the following commands:
