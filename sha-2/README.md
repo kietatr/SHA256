@@ -1,5 +1,9 @@
 # sha-2
 
+## Author
+
+[https://github.com/amosnier](https://github.com/amosnier)
+
 ## Contents
 
 SHA-2 algorithm implementations.
