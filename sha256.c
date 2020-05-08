@@ -212,5 +212,7 @@ char *sha256(char *inputMsg) {
 	
 	free(paddedMsg);
 
+	// printf("input = %s\nN = %d\n-----\n", inputMsg, N);
+
 	return result;
 }
